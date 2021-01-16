@@ -11,6 +11,7 @@
 #define KEYPAD_C2 A2
 #define KEYPAD_C3 A1
 #define KEYPAD_C4 A0
+#define DEBOUNCE_MS 350 
 
 extern const char KEYPAD_KEYS[KEYPAD_ROWS][KEYPAD_COLS];
 

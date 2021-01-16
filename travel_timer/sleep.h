@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include "utils.h"
 
 // PIN 2 is the interrupt pin
 #define POWER_OUTPUT_PIN 13

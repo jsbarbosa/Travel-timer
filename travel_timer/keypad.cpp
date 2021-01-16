@@ -9,8 +9,8 @@ const char KEYPAD_KEYS[KEYPAD_ROWS][KEYPAD_COLS] = {
 };
 
 
-const uint8_t KEYPAD_RS[KEYPAD_ROWS] = {5, 6, A5, A4};
-const uint8_t KEYPAD_CS[KEYPAD_COLS] = {A3, A2, A1, A0};
+const uint8_t KEYPAD_RS[KEYPAD_ROWS] = {KEYPAD_R1, KEYPAD_R2, KEYPAD_R3, KEYPAD_R4};
+const uint8_t KEYPAD_CS[KEYPAD_COLS] = {KEYPAD_C1, KEYPAD_C2, KEYPAD_C3, KEYPAD_C4};
 
 void setup_keypad(void)
 {
@@ -52,4 +52,3 @@ char get_key(void)
 
   return key;
 }
-

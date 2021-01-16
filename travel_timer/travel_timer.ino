@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "keypad.h"
 #include "lcd.h"
+#include "menu.h"
 
 void setup()
 {
@@ -18,19 +19,18 @@ void setup()
 
 void loop()
 {
-  LCD.setCursor(5, 1);
+  LCD.blink();
+  LCD.setCursor(13, 1);
   LCD.print(millis() / 1000);
 
   char key = get_key();
   if(key)
   {
-    LCD.setCursor(1, 1);
-    LCD.print(key);
-    disable_timer();
+    update(key);
+    delay(DEBOUNCE_MS);
+    //disable_timer();
   }
   else{
-    LCD.setCursor(1, 1);
-    LCD.print(' ');
-    enable_timer();
+    //enable_timer();
   }
 }
