@@ -19,7 +19,12 @@ void setup_keypad(void)
   }
 
   for(int i=0; i < KEYPAD_COLS; i++){
-    pinMode(KEYPAD_CS[i], INPUT_PULLUP);
+    pinMode(KEYPAD_CS[i], INPUT);
+  }
+
+  for(uint8_t i=0; i<KEYPAD_ROWS; i++)
+  {
+    write_pin(KEYPAD_RS[i], HIGH);
   }
 }
 
@@ -27,28 +32,29 @@ void setup_keypad(void)
 char get_key(void)
 {
   char key = 0;
-  // set to high
+  
   for(uint8_t i=0; i<KEYPAD_ROWS; i++)
   {
-    write_pin(KEYPAD_RS[i], HIGH);
+    write_pin(KEYPAD_RS[i], LOW);
   }
-  
+
   for(uint8_t i=0; (i<KEYPAD_ROWS) & (key == 0); i++)
   {
-    // activate row by droping it
-    write_pin(KEYPAD_RS[i], LOW);
+    // activate row
+    write_pin(KEYPAD_RS[i], HIGH);
     for(uint8_t j=0; (j<KEYPAD_COLS) & (key == 0); j++)
     {
-      if(!digitalRead(KEYPAD_CS[j])) key = KEYPAD_KEYS[i][j];
+      if(digitalRead(KEYPAD_CS[j]))
+      {
+        key = KEYPAD_KEYS[i][j];
+      }
     }
-    write_pin(KEYPAD_RS[i], HIGH);
-  }
-
-  // set to low
-  for(uint8_t i=0; i<KEYPAD_ROWS; i++)
-  {
     write_pin(KEYPAD_RS[i], LOW);
   }
 
+  for(uint8_t i=0; i<KEYPAD_ROWS; i++)
+  {
+    write_pin(KEYPAD_RS[i], HIGH);
+  }
   return key;
 }

@@ -7,7 +7,7 @@
 void setup()
 {
   ADCSRA = 0; //disable the ADC
-  pinMode(2, INPUT_PULLUP); // interrupt pin
+  pinMode(2, INPUT); // interrupt pin
 
   write_pin(POWER_OUTPUT_PIN, HIGH); // power on
 
@@ -15,22 +15,26 @@ void setup()
   setup_keypad();
 
   sei();
+
+  main_view();
+
+  delay(1000);
+  //enable_timer();
 }
 
 void loop()
-{
-  LCD.blink();
-  LCD.setCursor(13, 1);
-  LCD.print(millis() / 1000);
-
+{  
   char key = get_key();
   if(key)
   {
-    update(key);
-    delay(DEBOUNCE_MS);
+    menu_update(key);
     //disable_timer();
+    delay(DEBOUNCE_MS);
   }
+  /*
   else{
-    //enable_timer();
+    enable_timer();
   }
+  delay(100);
+  */
 }

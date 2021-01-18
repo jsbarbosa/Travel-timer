@@ -5,4 +5,5 @@
 #define LEFT_KEY '*'
 #define RIGHT_KEY '#'
 
-void update(char key);
+void main_view(void);
+void menu_update(char key);

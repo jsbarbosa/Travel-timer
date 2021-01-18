@@ -1,51 +1,170 @@
 #include "lcd.h"
 #include "menu.h"
+#include "timing.h"
+//#include <DateTime.h>
 
 volatile uint8_t CURSOR_COLUMN = 0;
 volatile char CURRENT_VIEW = 0;
 
-void update(char key)
+void main_view(void)
 {
+  CURSOR_COLUMN = 0;
+  CURRENT_VIEW = 0;
+  
+  LCD.clear();
+  LCD.setCursor(1, 0);
+  LCD.print(get_current_time());
+
+  //DateTime(y, mon, d, h, minu, s)
+}
+
+void move_cursor_left(void)
+{
+  // limit on the left
+  if(CURSOR_COLUMN > 0)
+  {
+    CURSOR_COLUMN -= 1; 
+  }
+
+  // jump separators
+  if(CURSOR_COLUMN % 3 == 2)
+  {
+    CURSOR_COLUMN -= 1;
+  }
+
+  LCD.setCursor(CURSOR_COLUMN, 1);
+}
+
+void move_cursor_right(void)
+{
+  // limit on the right (13 characters in datetime)
+  if(CURSOR_COLUMN < 13)
+  {
+    CURSOR_COLUMN += 1; 
+  }
+  
+  // jump separators
+  if(CURSOR_COLUMN % 3 == 2)
+  {
+    CURSOR_COLUMN += 1;
+  }
+
+  LCD.setCursor(CURSOR_COLUMN, 1);
+}
+
+void current_time_view(char key)
+{
+  if(CURRENT_VIEW != CURRENT_TIME_KEY)
+  {
+    LCD.clear();
+    LCD.print("Setup C. Time");
+    LCD.setCursor(0, 1);
+    LCD.print(get_current_time());
+    LCD.setCursor(0, 1);
+    LCD.blink();
+    
+    CURRENT_VIEW = CURRENT_TIME_KEY;
+  }
+
+  switch(key)
+  {
+    case BACK_KEY:
+      main_view();
+      return ;
+    case ENTER_KEY:
+      commit_current_time();
+      main_view();
+      return ;
+    case LEFT_KEY:
+      move_cursor_left();
+      return ;
+    case RIGHT_KEY:
+      move_cursor_right();
+      return ;
+    case CURRENT_TIME_KEY:
+    case TRAVEL_TIME_KEY:
+      return ;
+  }
+
+  if(set_date_char(CURSOR_COLUMN, key, CURRENT_TIME_INDICATOR))
+  {
+    LCD.setCursor(CURSOR_COLUMN, 1);
+    LCD.print(key);
+    if(CURSOR_COLUMN == 13)
+    {
+      commit_current_time();
+      main_view();
+    }
+    else{
+      move_cursor_right();
+    }
+  }
+}
+
+void travel_time_view(char key)
+{
+  if(CURRENT_VIEW != TRAVEL_TIME_KEY)
+  {
+    LCD.clear();
+    LCD.print("Setup T. Time");
+    LCD.setCursor(0, 1);
+    LCD.print(get_travel_time());
+    LCD.setCursor(0, 1);
+    LCD.blink();
+    
+    CURRENT_VIEW = TRAVEL_TIME_KEY;
+  }
+
+  switch(key)
+  {
+    case BACK_KEY:
+      main_view();
+      return ;
+    case ENTER_KEY:
+      commit_travel_time();
+      main_view();
+      return ;
+    case LEFT_KEY:
+      move_cursor_left();
+      return ;
+    case RIGHT_KEY:
+      move_cursor_right();
+      return ;
+    case CURRENT_TIME_KEY:
+    case TRAVEL_TIME_KEY:
+      return ;
+  }
+
+  if(set_date_char(CURSOR_COLUMN, key, TRAVEL_TIME_INDICATOR))
+  {
+    LCD.setCursor(CURSOR_COLUMN, 1);
+    LCD.print(key);
+    if(CURSOR_COLUMN == 13)
+    {
+      commit_travel_time();
+      main_view();
+    }
+    else{
+      move_cursor_right();
+    }
+  }
+}
+
+void menu_update(char key)
+{
+  switch(CURRENT_VIEW)
+  {
+    case CURRENT_TIME_KEY:
+      return current_time_view(key);
+    case TRAVEL_TIME_KEY:
+      return travel_time_view(key);
+  }
+
   switch(key)
   {
     case CURRENT_TIME_KEY:
-      LCD.clear();
-      CURSOR_COLUMN = 0;
-      CURRENT_VIEW = CURRENT_TIME_KEY;
-      LCD.print("CURRENT_TIME_KEY");
-      break;
+      return current_time_view(key);
     case TRAVEL_TIME_KEY:
-      LCD.clear();
-      CURSOR_COLUMN = 0;
-      CURRENT_VIEW = TRAVEL_TIME_KEY;
-      LCD.print("TRAVEL_TIME_KEY");
-      break;
-    case BACK_KEY:
-      LCD.clear();
-      CURSOR_COLUMN = 0;
-      CURRENT_VIEW = 0;
-      LCD.print("BACK_KEY");
-      break;
-    case ENTER_KEY:
-      LCD.clear();
-      CURSOR_COLUMN = 0;
-      CURRENT_VIEW = 0;
-      LCD.print("ENTER_KEY");
-      break;
-    case LEFT_KEY:
-      if (CURSOR_COLUMN > 0) CURSOR_COLUMN -= 1;
-      LCD.setCursor(0, 0);
-      LCD.print("LEFT_KEY");
-      break;
-    case RIGHT_KEY:
-      if (CURSOR_COLUMN < LCD_COLS-1) CURSOR_COLUMN += 1;
-      LCD.setCursor(0, 0);
-      LCD.print("RIGHT_KEY");
-      break;
-    default:
-      LCD.setCursor(CURSOR_COLUMN, 1);
-      CURSOR_COLUMN += 1;
-      LCD.print(key);
-    LCD.blink();
+      return travel_time_view(key);
   }
 }

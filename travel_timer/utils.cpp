@@ -8,3 +8,8 @@ void write_pin(int pin, unsigned char value)
   if (value) *reg |= mask;
   else *reg &= ~mask;
 }
+
+uint8_t to_value(char digit)
+{
+  return digit - '0';
+}
