@@ -21,11 +21,6 @@ void setup_keypad(void)
   for(int i=0; i < KEYPAD_COLS; i++){
     pinMode(KEYPAD_CS[i], INPUT);
   }
-
-  for(uint8_t i=0; i<KEYPAD_ROWS; i++)
-  {
-    write_pin(KEYPAD_RS[i], HIGH);
-  }
 }
 
 
@@ -33,11 +28,6 @@ char get_key(void)
 {
   char key = 0;
   
-  for(uint8_t i=0; i<KEYPAD_ROWS; i++)
-  {
-    write_pin(KEYPAD_RS[i], LOW);
-  }
-
   for(uint8_t i=0; (i<KEYPAD_ROWS) & (key == 0); i++)
   {
     // activate row
@@ -51,10 +41,6 @@ char get_key(void)
     }
     write_pin(KEYPAD_RS[i], LOW);
   }
-
-  for(uint8_t i=0; i<KEYPAD_ROWS; i++)
-  {
-    write_pin(KEYPAD_RS[i], HIGH);
-  }
+  
   return key;
 }

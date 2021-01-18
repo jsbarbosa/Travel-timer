@@ -1,6 +1,8 @@
 #include "sleep.h"
 #include "utils.h"
 #include "lcd.h"
+#include "menu.h"
+#include "keypad.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
@@ -75,9 +77,16 @@ void power_down(void)
     LCD_D7
   };
 
+  main_view();
+
   for(uint8_t i=0; i<n_buttons; i++)
   {
     write_pin(buttons_to_disable[i], 0);  // lower pin
+  }
+
+  for(uint8_t i=0; i<KEYPAD_ROWS; i++)
+  {
+    write_pin(KEYPAD_RS[i], 1);
   }
   
   //EICRA = _BV(ISC01); //configure INT0 to trigger on falling edge
@@ -96,10 +105,17 @@ void power_down(void)
   cli();
 
   write_pin(POWER_OUTPUT_PIN, 1);
+
+  for(uint8_t i=0; i<KEYPAD_ROWS; i++)
+  {
+    write_pin(KEYPAD_RS[i], 0);
+  }
   
   _delay_ms(1000);
 
-  setup_display(); 
+  setup_display();
+
+  main_view();
   enable_timer();
 
   //enable interrupts
