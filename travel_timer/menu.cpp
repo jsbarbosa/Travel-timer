@@ -8,14 +8,22 @@ volatile char CURRENT_VIEW = 0;
 
 void main_view(void)
 {
-  CURSOR_COLUMN = 0;
-  CURRENT_VIEW = 0;
+  if (CURRENT_VIEW != 0)
+  {
+    LCD.clear();
+    CURRENT_VIEW = 0;
+  }
   
-  LCD.clear();
-  LCD.setCursor(1, 0);
+  CURSOR_COLUMN = 0;
+  LCD.setCursor(0, 0);  // second column, first row
+  LCD.print("C ");
   LCD.print(get_current_time());
-
-  //DateTime(y, mon, d, h, minu, s)
+  LCD.setCursor(0, 1);  // first column, second row
+  LCD.print("T ");
+  LCD.print(get_travel_date());
+  //LCD.setCursor(10, 1);
+  LCD.print(" D:");
+  LCD.print(days_between());
 }
 
 void move_cursor_left(void)
@@ -54,6 +62,7 @@ void move_cursor_right(void)
 
 void current_time_view(char key)
 {
+  if(key == 0) return;
   if(CURRENT_VIEW != CURRENT_TIME_KEY)
   {
     LCD.clear();
@@ -103,6 +112,7 @@ void current_time_view(char key)
 
 void travel_time_view(char key)
 {
+  if(key == 0) return;
   if(CURRENT_VIEW != TRAVEL_TIME_KEY)
   {
     LCD.clear();
@@ -167,4 +177,6 @@ void menu_update(char key)
     case TRAVEL_TIME_KEY:
       return travel_time_view(key);
   }
+
+  main_view();
 }

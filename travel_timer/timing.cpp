@@ -1,9 +1,15 @@
 #include "timing.h"
 #include "utils.h"
 #include <EEPROM.h>
+#include "virtuabotixRTC.h"
+
+#define RTC_CLK 4
+#define RTC_DAT 3
+#define RTC_RST 1
+
+virtuabotixRTC myRTC(RTC_CLK, RTC_DAT, RTC_RST); //CLK, DAT, RST
 
 // year/month/day hour:minute
-
 String current_time = "21/01/01 00:00";
 String travel_time = "21/01/01 00:00";
 
@@ -53,8 +59,28 @@ uint8_t simple_validate_date(String timestamp)
   return validate_date(year, month, day, hour, minute);
 }
 
-String get_current_time(void)
+
+String get_current_time()
 {
+  myRTC.updateTime();
+
+  char temp[current_time.length() * 2];
+  
+  uint8_t year = myRTC.year - 2000;
+  
+  snprintf_P(
+    temp,
+    current_time.length() * 2,
+    PSTR("%02u/%02u/%02u %02u:%02u"),
+    year, myRTC.month, myRTC.dayofmonth,
+    myRTC.hours, myRTC.minutes
+  );
+
+  for(uint8_t i=0; i < current_time.length(); i++)
+  {
+    current_time[i] = temp[i];
+  }
+
   return current_time;
 }
 
@@ -81,6 +107,21 @@ String get_travel_time(void)
   }
   
   return travel_time;
+}
+
+
+String get_travel_date(void)
+{
+  get_travel_time();
+
+  char date[8];
+  
+  for(uint8_t i=0; i<8; i++)
+  {
+    date[i] = travel_time[i];
+  }
+  
+  return date;
 }
 
 
@@ -117,13 +158,36 @@ uint8_t set_date_char(uint8_t pos, char digit, uint8_t time_indicator)
 
 void commit_current_time(void)
 {
+  uint8_t year, month, day, hour, minute;
 
+  split_timestamp(current_time, &year, &month, &day, &hour, &minute);
+
+  myRTC.setDS1302Time(
+    0, // seconds
+    minute,
+    hour,
+    1, // day of week,
+    day,
+    month,
+    year + 2000
+  );
 }
 
 void commit_travel_time(void)
 {
   for(uint8_t i=0; i<travel_time.length(); i++)
   {
-    EEPROM.write(i, (char)travel_time[i]);
+    EEPROM.update(i, (char)travel_time[i]);
   }
+}
+
+uint16_t days_between(void)
+{
+  uint8_t c_year, c_month, c_day, c_hour, c_minute;
+  uint8_t t_year, t_month, t_day, t_hour, t_minute;
+
+  split_timestamp(current_time, &c_year, &c_month, &c_day, &c_hour, &c_minute);
+  split_timestamp(travel_time, &t_year, &t_month, &t_day, &t_hour, &t_minute);
+
+  return 0;
 }

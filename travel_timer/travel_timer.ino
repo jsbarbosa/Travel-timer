@@ -18,19 +18,21 @@ void setup()
 
   main_view();
 
-  enable_timer();
+  //enable_timer();
 }
 
 void loop()
 {  
   char key = get_key();
+
+  menu_update(key);
   if(key)
   {
-    menu_update(key);
-    disable_timer();
+    //disable_timer();
     delay(DEBOUNCE_MS);
   }
   else{
-    enable_timer();
+    //enable_timer();
+    delay(100);
   }
 }
