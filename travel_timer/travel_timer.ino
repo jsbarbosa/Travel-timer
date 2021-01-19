@@ -18,7 +18,7 @@ void setup()
 
   main_view();
 
-  //enable_timer();
+  enable_timer();
 }
 
 void loop()
@@ -28,11 +28,11 @@ void loop()
   menu_update(key);
   if(key)
   {
-    //disable_timer();
+    disable_timer();
     delay(DEBOUNCE_MS);
   }
   else{
-    //enable_timer();
+    enable_timer();
     delay(100);
   }
 }

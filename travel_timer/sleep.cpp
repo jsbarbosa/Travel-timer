@@ -111,9 +111,11 @@ void power_down(void)
     write_pin(KEYPAD_RS[i], 0);
   }
   
-  _delay_ms(1000);
+  _delay_ms(100);
 
+  LCD.clear();
   setup_display();
+  LCD.clear();
 
   main_view();
   enable_timer();
