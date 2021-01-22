@@ -1,10 +1,21 @@
 #include "lcd.h"
 #include "menu.h"
 #include "timing.h"
+#include <util/delay.h>
 //#include <DateTime.h>
 
 volatile uint8_t CURSOR_COLUMN = 0;
 volatile char CURRENT_VIEW = 0;
+
+void banner_view(void)
+{
+  LCD.setCursor(3, 0);  // second column, first row
+  LCD.print("Pochi");
+  LCD.setCursor(10, 1);
+  LCD.print("Clock");
+  _delay_ms(BANNER_TIME_MS);
+  LCD.clear();
+}
 
 void main_view(void)
 {
@@ -21,9 +32,9 @@ void main_view(void)
   LCD.setCursor(0, 1);  // first column, second row
   LCD.print("T ");
   LCD.print(get_travel_date());
-  //LCD.setCursor(10, 1);
   LCD.print(" D:");
   LCD.print(days_between());
+  LCD.noBlink();
 }
 
 void move_cursor_left(void)

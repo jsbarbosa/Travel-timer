@@ -3,7 +3,7 @@
 // PIN 2 is the interrupt pin
 #define POWER_OUTPUT_PIN 13
 #define TIMER_TIME_SECONDS 1
-#define ACTIVE_TIME_SECONDS 5 // must be a multiple of TIMER_TIME_SECONDS
+#define ACTIVE_TIME_SECONDS 7 // must be a multiple of TIMER_TIME_SECONDS
 
 extern const int ACTIVE_TIME_ITERATIONS;
 extern volatile int ACTIVE_TIME_ITERATOR;

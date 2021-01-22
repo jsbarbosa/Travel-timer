@@ -16,6 +16,7 @@ void setup()
 
   sei();
 
+  banner_view();
   main_view();
 
   enable_timer();

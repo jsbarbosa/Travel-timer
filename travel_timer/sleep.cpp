@@ -117,6 +117,7 @@ void power_down(void)
   setup_display();
   LCD.clear();
 
+  banner_view();
   main_view();
   enable_timer();
 

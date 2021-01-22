@@ -6,12 +6,14 @@
 #define RTC_CLK 4
 #define RTC_DAT 3
 #define RTC_RST 1
+#define TIME_STAMP_LENGTH 15
+#define DATE_STAMP_LENGTH 9
 
 virtuabotixRTC myRTC(RTC_CLK, RTC_DAT, RTC_RST); //CLK, DAT, RST
 
 // year/month/day hour:minute
-String current_time = "21/01/01 00:00";
-String travel_time = "21/01/01 00:00";
+char current_time[TIME_STAMP_LENGTH] = "21/01/01 00:00";
+char travel_time[TIME_STAMP_LENGTH] = "21/01/01 00:00";
 
 const uint8_t month_days[12] = {
   31,
@@ -63,39 +65,32 @@ uint8_t simple_validate_date(String timestamp)
 String get_current_time()
 {
   myRTC.updateTime();
-
-  char temp[current_time.length() * 2];
   
   uint8_t year = myRTC.year - 2000;
   
   snprintf_P(
-    temp,
-    current_time.length() * 2,
+    current_time,
+    TIME_STAMP_LENGTH,
     PSTR("%02u/%02u/%02u %02u:%02u"),
     year, myRTC.month, myRTC.dayofmonth,
     myRTC.hours, myRTC.minutes
   );
-
-  for(uint8_t i=0; i < current_time.length(); i++)
-  {
-    current_time[i] = temp[i];
-  }
-
+  
   return current_time;
 }
 
 String get_travel_time(void)
 {
-  char temp_time[14];
+  char temp_time[TIME_STAMP_LENGTH];
   
-  for(uint8_t i=0; i<14; i++)
+  for(uint8_t i=0; i < TIME_STAMP_LENGTH - 1; i++)
   {
-    temp_time[i] = (char)EEPROM.read(i);
+    temp_time[i] = EEPROM.read(i);
   }
   
   if(simple_validate_date(temp_time))
   {
-    for(uint8_t i=0; i<14; i++)
+    for(uint8_t i=0; i<TIME_STAMP_LENGTH - 1; i++)
     {
       travel_time[i] = temp_time[i];
     }
@@ -105,6 +100,8 @@ String get_travel_time(void)
   {
     commit_travel_time();
   }
+
+  travel_time[TIME_STAMP_LENGTH - 1] = 0;
   
   return travel_time;
 }
@@ -114,12 +111,14 @@ String get_travel_date(void)
 {
   get_travel_time();
 
-  char date[8];
+  char date[DATE_STAMP_LENGTH];
   
-  for(uint8_t i=0; i<8; i++)
+  for(uint8_t i=0; i<DATE_STAMP_LENGTH - 1; i++)
   {
     date[i] = travel_time[i];
   }
+
+  date[DATE_STAMP_LENGTH - 1] = 0;
   
   return date;
 }
@@ -175,11 +174,29 @@ void commit_current_time(void)
 
 void commit_travel_time(void)
 {
-  for(uint8_t i=0; i<travel_time.length(); i++)
+  for(uint8_t i=0; i < TIME_STAMP_LENGTH - 1; i++)
   {
-    EEPROM.update(i, (char)travel_time[i]);
+    EEPROM.update(i, travel_time[i]);
   }
 }
+
+
+uint8_t countLeapYears(uint8_t year, uint8_t month)
+{
+    uint16_t years = year + 2000;
+ 
+    if (month <= 2)
+        years--;
+ 
+    // An year is a leap year if it 
+    // is a multiple of 4,
+    // multiple of 400 and not a 
+     // multiple of 100.
+    return years / 4 
+           - years / 100
+           + years / 400;
+}
+ 
 
 uint16_t days_between(void)
 {
@@ -189,5 +206,16 @@ uint16_t days_between(void)
   split_timestamp(current_time, &c_year, &c_month, &c_day, &c_hour, &c_minute);
   split_timestamp(travel_time, &t_year, &t_month, &t_day, &t_hour, &t_minute);
 
-  return 0;
+  long int n1 = (c_year + 2000) * 365 + c_day;
+  long int n2=(t_year + 2000) * 365 + t_day;
+ 
+  for (uint8_t i = 0; i < c_month - 1; i++)
+      n1 += month_days[i];
+  n1 += countLeapYears(c_year, c_month);
+ 
+  for (uint8_t i = 0; i < t_month - 1; i++)
+      n2 += month_days[i];
+  n2 += countLeapYears(t_year, t_month);
+
+  return (n2 - n1);
 }
